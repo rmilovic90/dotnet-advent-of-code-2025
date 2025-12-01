@@ -6,13 +6,28 @@ internal sealed class Safe
 
     public void TurnDial(IEnumerable<string> rotations)
     {
-        string direction = rotations.First()[0..1];
-        uint distance = uint.Parse(rotations.First()[1..]);
+        foreach (var rotation in rotations) TurnDial(rotation);
+    }
+
+    public void TurnDial(string rotation)
+    {
+        string direction = rotation[0..1];
+        uint distance = uint.Parse(rotation[1..]);
 
         if (direction == "L")
-            DialPosition -= distance;
+        {
+            if (DialPosition < distance)
+                DialPosition = 100 + DialPosition - distance;
+            else
+                DialPosition -= distance;
+        }
 
         if (direction == "R")
-            DialPosition += distance;
+        {
+            if (DialPosition + distance >= 100)
+                DialPosition = DialPosition + distance - 100;
+            else
+                DialPosition += distance;
+        }
     }
 }

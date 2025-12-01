@@ -29,4 +29,40 @@ public sealed class SafeTests
 
         await Assert.That(safe.DialPosition).IsEqualTo(60u);
     }
+
+    [Test]
+    [MethodDataSource(nameof(LeftRotationsTestData))]
+    public async Task Turning_the_dial_left_from_0_makes_dial_point_at_number_99_or_lower(RotationsTestData rotationsTestData)
+    {
+        Safe safe = new ();
+
+        safe.TurnDial(rotationsTestData.Rotations);
+
+        await Assert.That(safe.DialPosition).IsEqualTo(rotationsTestData.ExpectedResult);
+    }
+ 
+    public static IEnumerable<Func<RotationsTestData>> LeftRotationsTestData()
+    {
+        yield return () => new (Rotations: ["L50", "L10"], ExpectedResult: 90u);
+        yield return () => new (Rotations: ["L60"], ExpectedResult: 90u);;
+    }
+
+    [Test]
+    [MethodDataSource(nameof(RightRotationsTestData))]
+    public async Task Turning_the_dial_right_from_99_makes_dial_point_at_number_0_or_higher(RotationsTestData rotationsTestData)
+    {
+        Safe safe = new ();
+
+        safe.TurnDial(rotationsTestData.Rotations);
+
+        await Assert.That(safe.DialPosition).IsEqualTo(rotationsTestData.ExpectedResult);
+    }
+
+    public static IEnumerable<Func<RotationsTestData>> RightRotationsTestData()
+    {
+        yield return () => new (Rotations: ["R50", "R10"], ExpectedResult: 10u);
+        yield return () => new (Rotations: ["R60"], ExpectedResult: 10u);
+    }
+
+    public record RotationsTestData(IEnumerable<string> Rotations, uint ExpectedResult);
 }
