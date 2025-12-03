@@ -43,4 +43,22 @@ public sealed class SafeTests
 
         await Assert.That(positions).IsEquivalentTo([50u, 10u], CollectionOrdering.Matching);
     }
+
+    [Test]
+    [MethodDataSource(nameof(DialRotations))]
+    public async Task Turning_the_dial_returns_expected_dial_positions(DialRotationsTestData dialRotations)
+    {
+        IReadOnlyList<uint> positions = Safe.TurnDial(dialRotations.Rotations);
+
+        await Assert.That(positions).IsEquivalentTo(dialRotations.ExpectedPositions, CollectionOrdering.Matching);
+    }
+
+    public static Func<DialRotationsTestData> DialRotations() =>
+        () => new DialRotationsTestData
+        (
+            Rotations: ["L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99", "R14", "L82"],
+            ExpectedPositions: [50u, 82u, 52u, 0u, 95u, 55u, 0u, 99u, 0u, 14u, 32u]
+        );
+
+    public record DialRotationsTestData(IEnumerable<string> Rotations, IEnumerable<uint> ExpectedPositions);
 }
