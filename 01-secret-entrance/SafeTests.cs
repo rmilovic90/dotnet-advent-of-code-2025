@@ -1,3 +1,5 @@
+using TUnit.Assertions.Enums;
+
 namespace SecretEntrance;
 
 public sealed class SafeTests
@@ -5,64 +7,40 @@ public sealed class SafeTests
     [Test]
     public async Task Dial_points_at_50_at_the_begging_of_safe_opening()
     {
-        Safe safe = new ();
+        IReadOnlyList<uint> positions = Safe.TurnDial([]);
 
-        await Assert.That(safe.DialPosition).IsEqualTo(50u);
+        await Assert.That(positions).IsEquivalentTo([50u], CollectionOrdering.Matching);
     }
 
     [Test]
     public async Task Dial_rotation_to_the_left_moves_the_dial_towards_lower_numbers()
     {
-        Safe safe = new ();
+        IReadOnlyList<uint> positions = Safe.TurnDial(["L10"]);
 
-        safe.TurnDial(["L10"]);
-
-        await Assert.That(safe.DialPosition).IsEqualTo(40u);
+        await Assert.That(positions).IsEquivalentTo([50u, 40u], CollectionOrdering.Matching);
     }
 
     [Test]
     public async Task Dial_rotation_to_the_right_moves_the_dial_towards_higher_numbers()
     {
-        Safe safe = new ();
+        IReadOnlyList<uint> positions = Safe.TurnDial(["R10"]);
 
-        safe.TurnDial(["R10"]);
-
-        await Assert.That(safe.DialPosition).IsEqualTo(60u);
+        await Assert.That(positions).IsEquivalentTo([50u, 60u], CollectionOrdering.Matching);
     }
 
     [Test]
-    [MethodDataSource(nameof(LeftRotationsTestData))]
-    public async Task Turning_the_dial_left_from_0_makes_dial_point_at_number_99_or_lower(RotationsTestData rotationsTestData)
+    public async Task Turning_the_dial_left_from_0_makes_dial_point_at_number_99_or_lower()
     {
-        Safe safe = new ();
+        IReadOnlyList<uint> positions = Safe.TurnDial(["L60"]);
 
-        safe.TurnDial(rotationsTestData.Rotations);
-
-        await Assert.That(safe.DialPosition).IsEqualTo(rotationsTestData.ExpectedResult);
-    }
- 
-    public static IEnumerable<Func<RotationsTestData>> LeftRotationsTestData()
-    {
-        yield return () => new (Rotations: ["L50", "L10"], ExpectedResult: 90u);
-        yield return () => new (Rotations: ["L60"], ExpectedResult: 90u);;
+        await Assert.That(positions).IsEquivalentTo([50u, 90u], CollectionOrdering.Matching);
     }
 
     [Test]
-    [MethodDataSource(nameof(RightRotationsTestData))]
-    public async Task Turning_the_dial_right_from_99_makes_dial_point_at_number_0_or_higher(RotationsTestData rotationsTestData)
+    public async Task Turning_the_dial_right_from_99_makes_dial_point_at_number_0_or_higher()
     {
-        Safe safe = new ();
+        IReadOnlyList<uint> positions = Safe.TurnDial(["R60"]);
 
-        safe.TurnDial(rotationsTestData.Rotations);
-
-        await Assert.That(safe.DialPosition).IsEqualTo(rotationsTestData.ExpectedResult);
+        await Assert.That(positions).IsEquivalentTo([50u, 10u], CollectionOrdering.Matching);
     }
-
-    public static IEnumerable<Func<RotationsTestData>> RightRotationsTestData()
-    {
-        yield return () => new (Rotations: ["R50", "R10"], ExpectedResult: 10u);
-        yield return () => new (Rotations: ["R60"], ExpectedResult: 10u);
-    }
-
-    public record RotationsTestData(IEnumerable<string> Rotations, uint ExpectedResult);
 }

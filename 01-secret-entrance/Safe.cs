@@ -1,33 +1,39 @@
 namespace SecretEntrance;
 
-internal sealed class Safe
+internal static class Safe
 {
-    public uint DialPosition { get; private set; } = 50;
-
-    public void TurnDial(IEnumerable<string> rotations)
+    public static IReadOnlyList<uint> TurnDial(IEnumerable<string> rotations)
     {
-        foreach (var rotation in rotations) TurnDial(rotation);
+        List<uint> positions = [50u];
+
+        foreach (var rotation in rotations) positions.Add(TurnDial(positions.Last(), rotation));
+
+        return positions;
     }
 
-    public void TurnDial(string rotation)
+    public static uint TurnDial(uint currentPosition, string rotation)
     {
+        uint nextPosition = currentPosition;
+
         string direction = rotation[0..1];
         uint distance = uint.Parse(rotation[1..]);
 
         if (direction == "L")
         {
-            if (DialPosition < distance)
-                DialPosition = 100 + DialPosition - distance;
+            if (currentPosition < distance)
+                nextPosition = 100 + currentPosition - distance;
             else
-                DialPosition -= distance;
+                nextPosition -= distance;
         }
 
         if (direction == "R")
         {
-            if (DialPosition + distance >= 100)
-                DialPosition = DialPosition + distance - 100;
+            if (currentPosition + distance >= 100)
+                nextPosition = currentPosition + distance - 100;
             else
-                DialPosition += distance;
+                nextPosition += distance;
         }
+
+        return nextPosition;
     }
 }
