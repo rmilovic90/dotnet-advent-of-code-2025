@@ -11,7 +11,7 @@ internal static class Safe
         return positions;
     }
 
-    public static uint TurnDial(uint currentPosition, string rotation)
+    private static uint TurnDial(uint currentPosition, string rotation)
     {
         uint nextPosition = currentPosition;
 
